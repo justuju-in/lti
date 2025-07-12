@@ -1,4 +1,3 @@
-cat docker-compose_old.yml 
 version: '3.8'
 
 networks:
@@ -24,23 +23,41 @@ services:
     networks:
       - web
 
-  app:
+  backend:
     build:
       context: ./backend
     environment:
       - LTI_JWT_SECRET=supersecret
-    volumes:
-      - ./frontend/dist:/app/frontend/dist:ro
     expose:
       - "3000"
     networks:
       - web
     labels:
       - traefik.enable=true
-      - traefik.http.routers.quiz.rule=Host(`lti.csbasics.in`)
-      - traefik.http.routers.quiz.entrypoints=websecure
-      - traefik.http.routers.quiz.tls=true
-      - traefik.http.routers.quiz.tls.certresolver=myresolver
-      - traefik.http.services.quiz.loadbalancer.server.port=3000
+      - traefik.http.routers.lti-backend.rule=Host(`lti.csbasics.in`) && PathPrefix(`/api`, `/login`, `/keys`)
+      - traefik.http.routers.lti-backend.entrypoints=websecure
+      - traefik.http.routers.lti-backend.tls=true
+      - traefik.http.routers.lti-backend.tls.certresolver=myresolver
+      - traefik.http.services.lti-backend.loadbalancer.server.port=3000
     depends_on:
       - traefik
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      - NODE_ENV=production
+    expose:
+      - "3001"
+    networks:
+      - web
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.lti-frontend.rule=Host(`lti.csbasics.in`)
+      - traefik.http.routers.lti-frontend.entrypoints=websecure
+      - traefik.http.routers.lti-frontend.tls=true
+      - traefik.http.routers.lti-frontend.tls.certresolver=myresolver
+      - traefik.http.services.lti-frontend.loadbalancer.server.port=3001
+    depends_on:
+      - traefik
+      - backend

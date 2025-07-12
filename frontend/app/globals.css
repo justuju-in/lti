@@ -1,0 +1,497 @@
+:root {
+  --primary-color: #ff6f61;
+  /* Warm coral for the calibration line */
+  --secondary-color: #4caf50;
+  /* Calming green for success elements */
+  --bg-color: #fefefe;
+  /* Light background */
+  --card-bg: #ffffff;
+  /* Card background */
+  --text-color: #2c3e50;
+  /* Dark blue-gray for text */
+  --btn-bg: #007bff;
+  /* Vibrant blue for buttons */
+  --btn-bg-hover: #0056b3;
+  /* Darker blue for hover state */
+  --btn-color: #ffffff;
+  /* White for button text */
+  --shadow-color: rgba(0, 0, 0, 0.15);
+  /* Subtle shadow */
+}
+
+
+body {
+  font-family: "Arial", sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  margin: 0;
+  /* font-family: 'Poppins', sans-serif; */
+  background-color: #f8f8f8;
+}
+
+/* Introduction Page */
+/* 
+.intro-instruction-div {
+  width: 90%;
+  max-width: 60rem;
+  padding: 2rem;
+  margin: 6rem auto;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  min-height: 65vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #2f3542;
+}
+
+.intro-instruction-div h1 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.intro-instruction-div ol {
+  padding-left: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.intro-instruction-div li {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #333;
+  line-height: 1.5;
+}
+
+.intro-instruction-div p {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #333;
+  line-height: 1.5;
+}
+
+.ok-btn {
+  padding: 0.7rem 2rem;
+  font-size: 1rem;
+  background-color: #ff7f50;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: center;
+}
+
+.ok-btn:hover {
+  background-color: #222;
+} */
+
+/* Calibration Page */
+
+/* .calibration-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem;
+  min-height: 100vh;
+  justify-content: center;
+  background-color: #fff;
+  width: 90%;
+  max-width: 60rem;
+  min-height: 65vh;
+  margin: 0rem auto;
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.description {
+  text-align: center;
+  max-width: 600px;
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 2rem;
+}
+
+.calibration-line {
+  height: 8px;
+  background-color: orange;
+  border-radius: 4px;
+  margin: 2rem 16rem;
+  transition: width 0.2s;
+  align-self: flex-start;
+}
+
+.value-display {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+}
+
+.text {
+  font-size: 1.2rem;
+} */
+
+/* Game Page */
+
+
+/* 
+.game-container {
+  padding: 20px;
+  text-align: center;
+}
+
+.shape-box {
+  position: relative;
+  width: 30rem;
+  height: 30rem;
+  border: 2px solid #444;
+  margin: 20px auto;
+  background-color: #fefefe;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.shape {
+  position: absolute;
+}
+
+.redSquare,
+.blueSquare {
+  width: 3rem;
+  height: 3rem;
+}
+
+.redSquare {
+  background-color: red;
+}
+
+.blueSquare {
+  background-color: blue;
+}
+
+.redTriangle,
+.blueTriangle {
+  width: 0;
+  height: 0;
+  border-left: 1.5rem solid transparent;
+  border-right: 1.5rem solid transparent;
+}
+
+.redTriangle {
+  border-bottom: 3rem solid red;
+}
+
+.blueTriangle {
+  border-bottom: 3rem solid blue;
+}
+
+.next-btn {
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  background-color: #444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.next-btn:hover {
+  background-color: #222;
+
+ */
+
+
+
+/*  
+html {
+  font-size: 16px; 
+}
+
+body {
+  background-color: #f4f4f4;
+}
+
+.intro-instruction-div {
+  width: 90%;
+  max-width: 60rem;
+  padding: 2rem;
+  margin: 6rem auto;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  min-height: 65vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #f4f4f4;
+  color: #2f3542;
+  font-family: 'Poppins', sans-serif;
+}
+
+.intro-instruction-div h1 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.intro-instruction-div ol {
+  padding-left: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.intro-instruction-div li {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #333;
+  line-height: 1.5;
+}
+
+.ok-btn {
+  padding: 0.7rem 2rem;
+  font-size: 1rem;
+  background-color: #ff7f50;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: center;
+
+}
+
+.ok-btn:hover {
+  background-color: #222;
+}
+
+
+
+.calibration-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem;
+  font-family: sans-serif;
+  background-color: #fff;
+  min-height: 100vh;
+  justify-content: center;
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.description {
+  text-align: center;
+  max-width: 600px;
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 2rem;
+}
+
+.calibration-line {
+  height: 8px;
+  background-color: orange;
+  border-radius: 4px;
+  margin: 2rem 0;
+  transition: width 0.2s;
+  align-self: flex-start;
+}
+
+.value-display {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+}
+
+.ok-btn {
+  padding: 0.7rem 2rem;
+  font-size: 1rem;
+  background-color: #444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  margin-top: 2rem;
+  cursor: pointer;
+}
+
+.ok-btn:hover {
+  background-color: #222;
+}
+
+
+
+
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background-color: #f8f8f8;
+}
+
+.Calibration-div {
+  padding: 2rem;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+.control {
+  margin-bottom: 2rem;
+}
+
+#remSlider {
+  width: 300px;
+  margin-left: 1rem;
+}
+
+.box {
+  width: 10rem;
+  height: 10rem;
+  background-color: #ff7f50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: white;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.text {
+  font-size: 1.2rem;
+}
+
+.calibration-btn {
+  padding: 20px 50px;
+  border: 2px solid dimgray;
+}
+
+
+
+
+
+
+
+
+
+.game-container {
+  padding: 20px;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+.shape-box {
+  position: relative;
+  width: 500px;
+  height: 500px;
+  border: 2px solid #444;
+  margin: 20px auto;
+  background-color: #fefefe;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.shape {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+}
+
+.redTriangle {
+  width: 0;
+  height: 0;
+  border-left: 25px solid transparent;
+  border-right: 25px solid transparent;
+  border-bottom: 50px solid red;
+}
+
+.redSquare {
+  background-color: red;
+}
+
+.blueTriangle {
+  width: 0;
+  height: 0;
+  border-left: 25px solid transparent;
+  border-right: 25px solid transparent;
+  border-bottom: 50px solid blue;
+}
+
+.blueSquare {
+  background-color: blue;
+}
+
+.next-btn {
+  padding: 12px 24px;
+  font-size: 1rem;
+  background-color: #444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s;
+}
+
+.next-btn:hover {
+  background-color: #222;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ */
+
+
+/* 
+.form {
+  border: 1px solid black;
+} */
+
+/* .start {
+  text-align: center;
+}
+
+#startButton {
+  font-weight: 700;
+  font-size: larger;
+  height: 80px;
+  width: 20%;
+  border-radius: 15px;
+} */
+
+/* .practice {
+  width: 100vw;
+} */
+
+/* .practice img {
+  margin-top: 30px;
+  width: 50% !important;
+
+}
+
+.error{
+  color:red;
+} */

@@ -1,6 +1,7 @@
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { Provider } from 'ltijs'
+import session from 'express-session'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -34,26 +35,156 @@ await lti.setup(
   }
 )
 
+// Add session middleware
+lti.app.use(session({
+  secret: 'your-session-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+}))
+
 // 2. Define behavior when the tool is launched
-lti.onConnect((token, req, res) => {
-  res.sendFile(path.join(__dirname, '/frontend/dist/index.html'))
+lti.onConnect(async (token, req, res) => {
+  // Extract user and context information from LTI token
+  const userInfo = {
+    id: token.userInfo.sub,
+    name: token.userInfo.name,
+    email: token.userInfo.email,
+    roles: token.userInfo['https://purl.imsglobal.org/spec/lti/claim/roles']
+  }
+  
+  const contextInfo = {
+    id: token.platformContext.contextId,
+    label: token.platformContext.contextLabel,
+    title: token.platformContext.contextTitle,
+    type: token.platformContext.contextType
+  }
+  
+  const resourceInfo = {
+    id: token.platformContext.resourceLinkId,
+    title: token.platformContext.resourceLinkTitle,
+    description: token.platformContext.resourceLinkDescription
+  }
+
+  console.log('LTI Launch - User:', userInfo.name, 'Context:', contextInfo.title)
+  
+  // Create a session transfer mechanism
+  const sessionData = {
+    userInfo,
+    contextInfo,
+    resourceInfo,
+    timestamp: Date.now()
+  }
+  
+  // Store in a temporary session transfer
+  if (!global.sessionTransfer) {
+    global.sessionTransfer = new Map()
+  }
+  
+  const transferId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  global.sessionTransfer.set(transferId, sessionData)
+  
+  // Clean up expired sessions (older than 5 minutes)
+  setTimeout(() => {
+    global.sessionTransfer.delete(transferId)
+  }, 5 * 60 * 1000)
+  
+  // Redirect to frontend with transfer ID
+  const frontendUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://lti.csbasics.in' 
+    : 'http://localhost:3001'
+  res.redirect(`${frontendUrl}/lti-launch?transferId=${transferId}`)
+})
+
+// Session transfer endpoint for frontend
+lti.app.get('/api/session-transfer/:transferId', (req, res) => {
+  const { transferId } = req.params
+  
+  if (!global.sessionTransfer) {
+    global.sessionTransfer = new Map()
+  }
+  
+  const sessionData = global.sessionTransfer.get(transferId)
+  if (sessionData) {
+    global.sessionTransfer.delete(transferId) // One-time use
+    res.json(sessionData)
+  } else {
+    res.status(404).json({ error: 'Session not found or expired' })
+  }
+})
+
+// API Endpoints for data exchange
+lti.app.get('/api/user', (req, res) => {
+  if (!req.session.userInfo) {
+    return res.status(401).json({ error: 'Not authenticated via LTI' })
+  }
+  res.json({
+    user: req.session.userInfo,
+    context: req.session.contextInfo,
+    resource: req.session.resourceInfo
+  })
+})
+
+lti.app.post('/api/submit-quiz', async (req, res) => {
+  try {
+    const { score, totalQuestions, answers } = req.body
+    const { userInfo, resourceInfo, ltik } = req.session
+    
+    if (!userInfo || !resourceInfo) {
+      return res.status(401).json({ error: 'Not authenticated via LTI' })
+    }
+    
+    // Calculate grade percentage
+    const gradePercentage = (score / totalQuestions) * 100
+    
+    // Store quiz result in database (you can expand this)
+    console.log(`Quiz submitted - User: ${userInfo.name}, Score: ${score}/${totalQuestions}`)
+    
+    // Send grade back to Moodle if Grade Service is available
+    if (ltik && ltik.platformContext && ltik.platformContext.endpoint) {
+      try {
+        const gradeObj = {
+          userId: userInfo.id,
+          scoreGiven: score,
+          scoreMaximum: totalQuestions,
+          comment: `Quiz completed with ${score} correct answers out of ${totalQuestions}`
+        }
+        
+        await lti.Grade.scorePassback(ltik, gradeObj)
+        console.log('Grade successfully sent to Moodle')
+      } catch (gradeError) {
+        console.error('Grade passback failed:', gradeError)
+      }
+    }
+    
+    res.json({ 
+      success: true, 
+      message: 'Quiz submitted successfully',
+      score: score,
+      percentage: gradePercentage
+    })
+  } catch (error) {
+    console.error('Quiz submission error:', error)
+    res.status(500).json({ error: 'Failed to submit quiz' })
+  }
 })
 
 // 3. Deploy the provider first — this must come before registering platforms!
 await lti.deploy({ port: 3000 })
 
 // 4. Register the Moodle platform AFTER deployment
+await lti.registerPlatform({
+  url: 'https://moodle.lti.csbasics.in',
+  name: 'Moodle',
+  clientId: '4ujCSyRPyjd18rQ',
+  authenticationEndpoint: 'https://moodle.lti.csbasics.in/mod/lti/auth.php',
+  accesstokenEndpoint: 'https://moodle.lti.csbasics.in/mod/lti/token.php',
+  authConfig: {
+    method: 'JWK_SET',
+    keysetUrl: 'https://moodle.lti.csbasics.in/mod/lti/certs.php'
+  },
+  alg: 'RS256'
+})
 
-// await lti.registerPlatform({
-//   url: 'https://moodle.lti.csbasics.in',
-//   name: 'Moodle',
-//   clientId: '4ujCSyRPyjd18rQ',
-//   authenticationEndpoint: 'https://moodle.lti.csbasics.in/mod/lti/auth.php',
-//   accesstokenEndpoint: 'https://moodle.lti.csbasics.in/mod/lti/token.php',
-//   authConfig: {
-//     method: 'JWK_SET',  // ✅ Correct value
-//     keysetUrl: 'https://moodle.lti.csbasics.in/mod/lti/certs.php',
-//     key: 'https://moodle.lti.csbasics.in/keyset'
-//   },
-//   alg: 'RS256'
-// })
+console.log('LTI Provider deployed successfully on port 3000')
+console.log('Moodle platform registered successfully')

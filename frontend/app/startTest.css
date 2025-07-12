@@ -1,0 +1,92 @@
+.startTest {
+    background-color: #fff;
+    padding: 30px 40px;
+    border-radius: 20px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    animation: fadeIn 0.6s ease-in-out;
+    transform: scale(1);
+    transition: transform 0.3s ease-in-out;
+}
+
+.startTest:hover {
+    transform: scale(1.02);
+}
+
+.startTest h2 {
+    font-size: 2rem;
+    color: #5e60ce;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.startTest p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.startTest p:nth-child(2) {
+    font-weight: bold;
+    color: #ff6f61;
+}
+
+#startTestButton {
+    background-color: #ff6f61;
+    color: #fff;
+    font-size: 1.2rem;
+    padding: 12px 25px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+#startTestButton:hover {
+    background-color: #e0554c;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+#startTestButton:active {
+    background-color: #c74336;
+    transform: translateY(2px);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .startTest {
+        padding: 20px;
+    }
+
+    .startTest h2 {
+        font-size: 1.8rem;
+    }
+
+    .startTest p {
+        font-size: 1rem;
+    }
+
+    #startTestButton {
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+}
