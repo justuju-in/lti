@@ -34,10 +34,18 @@ services:
       - web
     labels:
       - traefik.enable=true
-      - traefik.http.routers.lti-backend.rule=Host(`lti.csbasics.in`) && PathPrefix(`/api`, `/login`, `/keys`)
-      - traefik.http.routers.lti-backend.entrypoints=websecure
-      - traefik.http.routers.lti-backend.tls=true
-      - traefik.http.routers.lti-backend.tls.certresolver=myresolver
+      - traefik.http.routers.lti-backend-api.rule=Host(`lti.csbasics.in`) && (PathPrefix(`/api`) || PathPrefix(`/login`) || PathPrefix(`/keys`) || PathPrefix(`/register`))
+      - traefik.http.routers.lti-backend-api.entrypoints=websecure
+      - traefik.http.routers.lti-backend-api.tls=true
+      - traefik.http.routers.lti-backend-api.tls.certresolver=myresolver
+      - traefik.http.routers.lti-backend-api.service=lti-backend
+      - traefik.http.routers.lti-backend-api.priority=100
+      - traefik.http.routers.lti-backend-launch.rule=Host(`lti.csbasics.in`) && Path(`/`)
+      - traefik.http.routers.lti-backend-launch.entrypoints=websecure
+      - traefik.http.routers.lti-backend-launch.tls=true
+      - traefik.http.routers.lti-backend-launch.tls.certresolver=myresolver
+      - traefik.http.routers.lti-backend-launch.service=lti-backend
+      - traefik.http.routers.lti-backend-launch.priority=99
       - traefik.http.services.lti-backend.loadbalancer.server.port=3000
     depends_on:
       - traefik
@@ -53,11 +61,12 @@ services:
       - web
     labels:
       - traefik.enable=true
-      - traefik.http.routers.lti-frontend.rule=Host(`lti.csbasics.in`)
+      - traefik.http.routers.lti-frontend.rule=Host(`lti.csbasics.in`) && PathPrefix(`/lti-launch`)
       - traefik.http.routers.lti-frontend.entrypoints=websecure
       - traefik.http.routers.lti-frontend.tls=true
       - traefik.http.routers.lti-frontend.tls.certresolver=myresolver
       - traefik.http.services.lti-frontend.loadbalancer.server.port=3001
+      - traefik.http.routers.lti-frontend.priority=50
     depends_on:
       - traefik
       - backend
