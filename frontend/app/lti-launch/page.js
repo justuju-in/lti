@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Home from '../page';
 
-export default function LtiLaunch() {
+function LtiLaunchContent() {
   const [ltiData, setLtiData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -85,5 +85,17 @@ export default function LtiLaunch() {
       )}
       <Home />
     </div>
+  );
+}
+
+export default function LtiLaunch() {
+  return (
+    <Suspense fallback={
+      <div style={{ padding: 20, textAlign: 'center' }}>
+        <h2>Loading...</h2>
+      </div>
+    }>
+      <LtiLaunchContent />
+    </Suspense>
   );
 }
