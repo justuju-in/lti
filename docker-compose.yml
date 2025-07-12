@@ -1,0 +1,46 @@
+cat docker-compose_old.yml 
+version: '3.8'
+
+networks:
+  web:
+    driver: bridge
+
+services:
+  traefik:
+    image: traefik:v2.9
+    command:
+      - --providers.docker
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.myresolver.acme.tlschallenge=true
+      - --certificatesresolvers.myresolver.acme.email=chhotu@justuju.in
+      - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - web
+
+  app:
+    build:
+      context: ./backend
+    environment:
+      - LTI_JWT_SECRET=supersecret
+    volumes:
+      - ./frontend/dist:/app/frontend/dist:ro
+    expose:
+      - "3000"
+    networks:
+      - web
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.quiz.rule=Host(`lti.csbasics.in`)
+      - traefik.http.routers.quiz.entrypoints=websecure
+      - traefik.http.routers.quiz.tls=true
+      - traefik.http.routers.quiz.tls.certresolver=myresolver
+      - traefik.http.services.quiz.loadbalancer.server.port=3000
+    depends_on:
+      - traefik
