@@ -16,7 +16,7 @@ await lti.setup(
     url: 'mongodb+srv://chhotu22:ioufDLeFolNHv4TR@lti.wfvxszi.mongodb.net/ltijs?retryWrites=true&w=majority&appName=lti'
   },
   {
-    appRoute: '/',
+    appRoute: '/launch',
     loginRoute: '/login',
     //keysetRoute: '/keys',
     cookies: {
@@ -29,7 +29,7 @@ await lti.setup(
       name: 'Visual Search Tool', // Tool Provider name. Required field.
       logo: 'https://imgs.search.brave.com/Nh8VoS-LeggCpHsK1WyrJ93y5ZzhdvOHID1hEXXjp6Y/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzAyLzQ3LzAwLzYy/LzM2MF9GXzI0NzAw/NjIzMl9RS2hJNlUy/RlByNDlrUEJBZ09C/a2tvWWhOQXBxbG5W/Mi5qcGc', // Tool Provider logo URL.
       description: 'Visual Search and Perception Testing Tool for Educational Use', // Tool Provider description.
-      redirectUris: ['https://lti.csbasics.in/'], // Additional redirection URLs. The main URL is added by default.
+      redirectUris: ['https://lti.csbasics.in/', 'https://lti.csbasics.in/launch'], // Additional redirection URLs. The main URL is added by default.
       customParameters: {}, // Custom parameters.
       autoActivate: true // Whether or not dynamically registered Platforms should be automatically activated. Defaults to false.
     }
@@ -130,13 +130,13 @@ lti.app.get('/', (req, res) => {
       'https://purl.imsglobal.org/spec/lti-tool-configuration': {
         domain: 'lti.csbasics.in',
         description: 'Visual Search LTI Tool',
-        target_link_uri: 'https://lti.csbasics.in/',
+        target_link_uri: 'https://lti.csbasics.in/launch',
         custom_parameters: {},
         claims: ['iss', 'sub', 'aud', 'exp', 'iat', 'nonce'],
         messages: [
           {
             type: 'LtiResourceLinkRequest',
-            target_link_uri: 'https://lti.csbasics.in/',
+            target_link_uri: 'https://lti.csbasics.in/launch',
             label: 'Visual Search Tool'
           }
         ]
@@ -350,6 +350,32 @@ lti.app.get('/lti-launch', (req, res) => {
                     JSON.parse(sessionStorage.getItem('ltiSessionData')));
             }
         </script>
+    </body>
+    </html>
+  `)
+})
+
+// Add /launch route for LTI launches (Moodle sometimes uses this)
+lti.app.get('/launch', (req, res) => {
+  // This should be handled by the LTI library, but if it gets here, 
+  // show a message indicating it should be accessed via LTI
+  res.status(403).send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>LTI Launch Required - Visual Search Tool</title>
+        <style>
+            body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }
+            .error { background: #f8d7da; padding: 20px; border-radius: 5px; border-left: 4px solid #dc3545; }
+        </style>
+    </head>
+    <body>
+        <div class="error">
+            <h1>❌ Invalid Launch Access</h1>
+            <p>This URL is for LTI launches only.</p>
+            <p>Please access this tool through your Moodle course, not directly in the browser.</p>
+            <p>The tool must be launched from your LMS with proper authentication.</p>
+        </div>
     </body>
     </html>
   `)
