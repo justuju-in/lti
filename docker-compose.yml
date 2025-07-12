@@ -28,6 +28,7 @@ services:
       context: ./backend
     environment:
       - LTI_JWT_SECRET=supersecret
+      - NODE_ENV=production
     expose:
       - "3000"
     networks:
