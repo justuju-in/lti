@@ -95,11 +95,11 @@ lti.onConnect(async (token, req, res) => {
   res.redirect(`${frontendUrl}/lti-launch?transferId=${transferId}`)
 })
 
-// Add a proper root route handler for LTI dynamic registration and browser access
+// Add a root route handler specifically for LTI dynamic registration and specific requests
 lti.app.get('/', (req, res) => {
-  // Check if this is a dynamic registration request
+  // Only handle specific LTI-related requests
   if (req.query.openid_configuration || req.headers.accept?.includes('application/json')) {
-    // Let LTI handle dynamic registration
+    // Handle dynamic registration
     return res.json({
       issuer: 'https://lti.csbasics.in',
       authorization_endpoint: 'https://lti.csbasics.in/login',
@@ -139,58 +139,11 @@ lti.app.get('/', (req, res) => {
     })
   }
   
-  // For regular browsers, show a simple info page
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>LTI Visual Search Provider</title>
-        <style>
-            body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
-            .header { background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
-            .info { background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 10px 0; }
-            .warning { background: #fff3cd; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #ffc107; }
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <h1>🔍 LTI Visual Search Provider</h1>
-            <p>Learning Tools Interoperability (LTI) 1.3 Tool</p>
-        </div>
-        
-        <div class="info">
-            <h3>📋 Tool Information</h3>
-            <p><strong>Name:</strong> Visual Search LTI Tool</p>
-            <p><strong>Version:</strong> 1.0.0</p>
-            <p><strong>Type:</strong> LTI 1.3 Compatible</p>
-        </div>
-        
-        <div class="warning">
-            <h3>⚠️ Important Notice</h3>
-            <p>This tool is designed to be launched from your Learning Management System (LMS) like Moodle.</p>
-            <p>Direct access to this URL is not intended for end users.</p>
-        </div>
-        
-        <div class="info">
-            <h3>🔧 Configuration URLs</h3>
-            <p><strong>Tool URL:</strong> https://lti.csbasics.in/</p>
-            <p><strong>Login URL:</strong> https://lti.csbasics.in/login</p>
-            <p><strong>Keyset URL:</strong> https://lti.csbasics.in/keys</p>
-            <p><strong>Registration URL:</strong> https://lti.csbasics.in/register</p>
-        </div>
-        
-        <div class="info">
-            <h3>📚 Features</h3>
-            <ul>
-                <li>Visual search and perception testing</li>
-                <li>User context integration</li>
-                <li>Grade passback to LMS</li>
-                <li>Session management</li>
-            </ul>
-        </div>
-    </body>
-    </html>
-  `)
+  // For other root requests, let the frontend handle them
+  return res.status(404).json({ 
+    error: 'This endpoint is for LTI dynamic registration only. Please access the tool through your LMS.',
+    lti_info: 'https://lti.csbasics.in/info'
+  })
 })
 
 // Add a simple info route for direct access
