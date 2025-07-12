@@ -2,6 +2,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { Provider } from 'ltijs'
 import session from 'express-session'
+import express from 'express'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -68,7 +69,13 @@ lti.onConnect(async (token, req, res) => {
 
   console.log('LTI Launch - User:', userInfo.name, 'Context:', contextInfo.title)
   
-  // Create a session transfer mechanism
+  // Store LTI data in session for the frontend to access
+  req.session.userInfo = userInfo
+  req.session.contextInfo = contextInfo
+  req.session.resourceInfo = resourceInfo
+  req.session.ltik = token
+  
+  // Create a session transfer mechanism for the frontend
   const sessionData = {
     userInfo,
     contextInfo,
@@ -89,10 +96,8 @@ lti.onConnect(async (token, req, res) => {
     global.sessionTransfer.delete(transferId)
   }, 5 * 60 * 1000)
   
-  // Redirect to frontend with transfer ID
-  // Always redirect to the same domain in production
-  const frontendUrl = 'https://lti.csbasics.in'
-  res.redirect(`${frontendUrl}/lti-launch?transferId=${transferId}`)
+  // Redirect to the frontend URL with session transfer ID
+  res.redirect(`https://lti.csbasics.in/lti-launch?transferId=${transferId}`)
 })
 
 // Add a root route handler specifically for LTI dynamic registration and specific requests
@@ -139,11 +144,215 @@ lti.app.get('/', (req, res) => {
     })
   }
   
-  // For other root requests, let the frontend handle them
-  return res.status(404).json({ 
-    error: 'This endpoint is for LTI dynamic registration only. Please access the tool through your LMS.',
-    lti_info: 'https://lti.csbasics.in/info'
-  })
+  // For other root requests, show access denied message
+  res.status(403).send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Access Restricted - LTI Tool</title>
+        <style>
+            body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+            .header { background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px; text-align: center; }
+            .warning { background: #fff3cd; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #ffc107; }
+            .info { background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>🔍 Visual Search LTI Tool</h1>
+            <p>Learning Tools Interoperability (LTI) 1.3 Tool</p>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ Access Restricted</h3>
+            <p>This tool can only be accessed through your Learning Management System (LMS).</p>
+            <p>Direct access to this URL is not permitted.</p>
+        </div>
+        
+        <div class="info">
+            <h3>📋 For Instructors</h3>
+            <p>To use this tool in your course:</p>
+            <ul>
+                <li>Log into your Moodle course</li>
+                <li>Add an external tool activity</li>
+                <li>Configure with the LTI settings provided by your administrator</li>
+            </ul>
+        </div>
+        
+        <div class="info">
+            <h3>📚 About</h3>
+            <p>This visual search tool provides interactive perception testing and learning activities integrated with your LMS gradebook.</p>
+        </div>
+    </body>
+    </html>
+  `)
+})
+
+// Serve the frontend application only for valid LTI launches
+lti.app.get('/lti-launch', (req, res) => {
+  const transferId = req.query.transferId
+  
+  if (!transferId) {
+    return res.status(403).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <title>Invalid Access - LTI Tool</title>
+          <style>
+              body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }
+              .error { background: #f8d7da; padding: 20px; border-radius: 5px; border-left: 4px solid #dc3545; }
+          </style>
+      </head>
+      <body>
+          <div class="error">
+              <h1>❌ Invalid Access</h1>
+              <p>This page can only be accessed through a valid LTI launch from your LMS.</p>
+              <p>Please access this tool through your Moodle course.</p>
+          </div>
+      </body>
+      </html>
+    `)
+  }
+  
+  // Verify the transfer ID exists
+  if (!global.sessionTransfer || !global.sessionTransfer.has(transferId)) {
+    return res.status(403).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <title>Session Expired - LTI Tool</title>
+          <style>
+              body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }
+              .error { background: #f8d7da; padding: 20px; border-radius: 5px; border-left: 4px solid #dc3545; }
+          </style>
+      </head>
+      <body>
+          <div class="error">
+              <h1>⏰ Session Expired</h1>
+              <p>Your LTI session has expired or is invalid.</p>
+              <p>Please launch the tool again from your Moodle course.</p>
+          </div>
+      </body>
+      </html>
+    `)
+  }
+  
+  // Serve a simple frontend HTML that will load the Next.js app
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Visual Search LTI Tool</title>
+        <style>
+            body { margin: 0; font-family: Arial, sans-serif; }
+            #loading { 
+                display: flex; 
+                justify-content: center; 
+                align-items: center; 
+                height: 100vh; 
+                flex-direction: column; 
+            }
+            .spinner { 
+                border: 4px solid #f3f3f3; 
+                border-top: 4px solid #3498db; 
+                border-radius: 50%; 
+                width: 40px; 
+                height: 40px; 
+                animation: spin 2s linear infinite; 
+            }
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        </style>
+    </head>
+    <body>
+        <div id="loading">
+            <div class="spinner"></div>
+            <p>Loading Visual Search Tool...</p>
+        </div>
+        
+        <script>
+            // Get session data and initialize the app
+            const urlParams = new URLSearchParams(window.location.search);
+            const transferId = urlParams.get('transferId');
+            
+            if (transferId) {
+                // Fetch session data from backend
+                fetch('/api/session-transfer/' + transferId)
+                    .then(response => response.json())
+                    .then(sessionData => {
+                        if (sessionData.error) {
+                            document.getElementById('loading').innerHTML = 
+                                '<h2>❌ Session Error</h2><p>' + sessionData.error + '</p>';
+                            return;
+                        }
+                        
+                        // Store session data for the app
+                        sessionStorage.setItem('ltiSessionData', JSON.stringify(sessionData));
+                        
+                        // Hide loading and show app
+                        document.getElementById('loading').style.display = 'none';
+                        
+                        // Initialize the visual search app
+                        initVisualSearchApp(sessionData);
+                    })
+                    .catch(error => {
+                        console.error('Session transfer failed:', error);
+                        document.getElementById('loading').innerHTML = 
+                            '<h2>❌ Loading Error</h2><p>Failed to load the application.</p>';
+                    });
+            } else {
+                document.getElementById('loading').innerHTML = 
+                    '<h2>❌ Invalid Access</h2><p>Missing session information.</p>';
+            }
+            
+            function initVisualSearchApp(sessionData) {
+                // Create the main app container
+                const appContainer = document.createElement('div');
+                appContainer.id = 'visual-search-app';
+                document.body.appendChild(appContainer);
+                
+                // Simple visual search app implementation
+                appContainer.innerHTML = \`
+                    <div style="padding: 20px;">
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                            <h2>🔍 Visual Search Tool</h2>
+                            <p><strong>Welcome, \${sessionData.userInfo.name || 'Student'}!</strong></p>
+                            <p>Course: \${sessionData.contextInfo.title || 'Unknown Course'}</p>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+                            <h3>🎯 Visual Search Exercise</h3>
+                            <p>This is a placeholder for the visual search application.</p>
+                            <p>The full Next.js visual search app will be integrated here.</p>
+                            
+                            <div style="margin: 20px 0;">
+                                <button onclick="startVisualSearch()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                                    Start Visual Search Test
+                                </button>
+                            </div>
+                            
+                            <div id="search-area" style="display: none; border: 2px dashed #ccc; height: 300px; margin: 20px 0; display: flex; align-items: center; justify-content: center;">
+                                <p>Visual search interface will appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                \`;
+            }
+            
+            function startVisualSearch() {
+                const searchArea = document.getElementById('search-area');
+                searchArea.style.display = 'flex';
+                searchArea.innerHTML = '<p>🔍 Visual search test would start here...</p>';
+                
+                // This is where we would integrate the actual visual search game
+                console.log('Starting visual search with session data:', 
+                    JSON.parse(sessionStorage.getItem('ltiSessionData')));
+            }
+        </script>
+    </body>
+    </html>
+  `)
 })
 
 // Add a simple info route for direct access
