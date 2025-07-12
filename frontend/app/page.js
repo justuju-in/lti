@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import IntroductionPage from "./introductionPage";
 import Calibration from "./Calibration.js";
@@ -9,7 +9,7 @@ import Practice from "./practice.js";
 import StartTest from "./startTest.js";
 import GameContainer from "./gameContainer";
 
-export default function Home() {
+function HomeContent() {
   const [currentStep, setCurrentStep] = useState(0); // Start with 0 to show info page
   const [isLtiLaunch, setIsLtiLaunch] = useState(false);
   const searchParams = useSearchParams();
@@ -127,5 +127,13 @@ export default function Home() {
       {currentStep === 6 && <StartTest onDone={() => setCurrentStep(7)} />}
       {currentStep === 7 && <GameContainer />}
     </>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeContent />
+    </Suspense>
   );
 }
