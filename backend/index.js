@@ -96,6 +96,18 @@ lti.onConnect(async (token, req, res) => {
   res.redirect(`${frontendUrl}/lti-launch?transferId=${transferId}`)
 })
 
+// Add a simple info route for direct access
+lti.app.get('/info', (req, res) => {
+  res.json({
+    name: 'LTI Visual Search Provider',
+    description: 'This is an LTI 1.3 tool that provides visual search functionality.',
+    version: '1.0.0',
+    launch_url: 'https://lti.csbasics.in/',
+    registration_url: 'https://lti.csbasics.in/register',
+    note: 'This tool should be launched from your LMS (Moodle). Direct access is not intended for end users.'
+  })
+})
+
 // Session transfer endpoint for frontend
 lti.app.get('/api/session-transfer/:transferId', (req, res) => {
   const { transferId } = req.params
