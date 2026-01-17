@@ -1,0 +1,48 @@
+.intro-instruction-div {
+ max-width: 60rem;
+  padding: 2rem;
+  margin: 11rem auto;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  min-height: 55vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #2f3542;
+  box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.intro-instruction-div h1 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  margin-bottom: 30px;
+  color: var(--primary-color);
+}
+
+.intro-instruction-div ol {
+  padding-left: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.intro-instruction-div li {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #333;
+  line-height: 1.5;
+}
+
+.ok-btn {
+  padding: 0.7rem 2rem;
+  font-size: 1rem;
+  background-color: #ff7f50;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: center;
+}
+
+.ok-btn:hover {
+  background-color: #222;
+}
